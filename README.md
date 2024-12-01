@@ -78,6 +78,6 @@ npm run inspector
 
 The Inspector will provide a URL to access debugging tools in your browser, making it easier to test and debug the server.
 
----
+## License
 
-This documentation outlines the core functionality and usage of the Google Tasks MCP server, making it simple for users to integrate it into their applications.
+This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License.

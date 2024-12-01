@@ -36,6 +36,8 @@ const tasks = google.tasks({
 interface CreateTaskArgs {
   title: string;
   notes?: string;
+  taskId?: string;
+  status?: string;
 }
 
 // Type guard for CreateTaskArgs
@@ -43,11 +45,13 @@ export function isValidCreateTaskArgs(args: any): args is CreateTaskArgs {
   return (
     typeof args === "object" &&
     args !== null &&
-    "title" in args &&
-    typeof args.title === "string" &&
-    (args.notes === undefined || typeof args.notes === "string")
+    (args.title === undefined || typeof args.title === "string") &&
+    (args.notes === undefined || typeof args.notes === "string") &&
+    (args.taskId === undefined || typeof args.taskId === "string") &&
+    (args.status === undefined || typeof args.status === "string")
   );
 }
+
 
 class TasksServer {
   private server: Server;
@@ -155,6 +159,29 @@ class TasksServer {
             properties: {},
           },
         },
+        {
+          name: "delete_task",
+          description: "Delete a task from the default task list",
+          inputSchema: {
+            type: "object",
+            properties: {
+              taskId: { type: "string", description: "ID of the task to delete" },
+            },
+            required: ["taskId"],
+          },
+        },
+        {
+          name: "complete_task",
+          description: "Toggle the completion status of a task",
+          inputSchema: {
+            type: "object",
+            properties: {
+              taskId: { type: "string", description: "ID of the task to toggle completion status" },
+              status: { type: "string", description: "Status of task, needsAction or completed" },
+            },
+            required: ["taskId"],
+          },
+        },
       ],
     }));
     
@@ -188,7 +215,6 @@ class TasksServer {
             "Invalid arguments for creating a task. 'title' must be a string, and 'notes' must be a string or undefined."
           );
         }
-    
         const args = request.params.arguments;
     
         try {
@@ -215,7 +241,87 @@ class TasksServer {
           );
         }
       }
+
+      if (request.params.name === "delete_task") {
+        if (!isValidCreateTaskArgs(request.params.arguments)) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid arguments for creating a task. 'title' must be a string, and 'notes' must be a string or undefined."
+          );
+        }
+        const args = request.params.arguments;
+        const taskId  = args.taskId;
+        if (!taskId) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "The 'taskId' field is required."
+          );
+        }
+        try {
+          await tasks.tasks.delete({
+            tasklist: "@default",
+            task: taskId,
+          });
     
+          return {
+            content: [
+              {
+                type: "text",
+                text: "Task deleted successfully.",
+              },
+            ],
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InternalError,
+            `Tasks API error: ${error}`
+          );
+        }
+      }
+
+      if (request.params.name === "complete_task") {
+
+        if (!isValidCreateTaskArgs(request.params.arguments)) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid arguments for creating a task. 'title' must be a string, and 'notes' must be a string or undefined."
+          );
+        }
+        const args = request.params.arguments;
+        const taskId  = args.taskId;
+        const newStatus  = args.status;
+    
+        if (!taskId) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "The 'taskId' field is required."
+          );
+        }
+    
+        try {
+          // Durumu güncelle
+          const updateResponse = await tasks.tasks.patch({
+            tasklist: "@default",
+            task: taskId,
+            requestBody: { status: newStatus },
+          });
+    
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify(updateResponse.data, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          throw new McpError(
+            ErrorCode.InternalError,
+            `Tasks API error: ${error}`
+          );
+        }
+      }
+
       throw new McpError(
         ErrorCode.MethodNotFound,
         `Unknown tool: ${request.params.name}`

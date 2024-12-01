@@ -2,7 +2,9 @@
 
 A Model Context Protocol (MCP) server for managing Google Tasks.
 
-This TypeScript-based MCP server demonstrates core MCP concepts by integrating with Google Tasks API. It allows managing tasks in a structured and efficient way.
+This TypeScript-based MCP server demonstrates core MCP concepts by integrating with the Google Tasks API. It allows managing tasks in a structured and efficient way.
+
+---
 
 ## Features
 
@@ -13,43 +15,39 @@ This TypeScript-based MCP server demonstrates core MCP concepts by integrating w
 
 ### Tools
 - **`create_task`**: Create a new task in the default task list.
-  - Takes `title` (required) and `notes` (optional) as parameters.
-  - Stores the task in Google Tasks via the API.
+  - **Parameters**:
+    - `title` (string, optional): Title of the task.
+    - `notes` (string, optional): Additional notes for the task.
+    - `taskId` (string, optional): Unique ID for the task.
+    - `status` (string, optional): Status of the task (e.g., "needsAction" or "completed").
+  - **Response**: Returns the details of the created task.
 - **`list_tasks`**: List all tasks in the default task list.
-  - Returns a structured list of tasks with metadata such as title, notes, and status.
+  - **Parameters**: None.
+  - **Response**: Returns a JSON array of all tasks in the default task list.
+- **`delete_task`**: Delete a task from the default task list.
+  - **Parameters**:
+    - `taskId` (string, required): ID of the task to delete.
+  - **Response**: Confirms successful deletion of the task.
+- **`update_task`**: Update an existing task in the default task list.
+  - **Parameters**:
+    - `taskId` (string, required): ID of the task to update.
+    - `title` (string, optional): New title for the task.
+    - `notes` (string, optional): New notes for the task.
+  - **Response**: Returns the updated details of the task.
+- **`complete_task`**: Toggle the completion status of a task.
+  - **Parameters**:
+    - `taskId` (string, required): ID of the task to toggle completion status.
+  - **Response**: Returns the updated task details, including the new status.
 
-### Functionality
+---
+
+## Functionality
+
 - Provides easy integration with Large Language Models (LLMs) or other applications via MCP.
 - Structured tool definitions make task management intuitive and accessible.
+- Full support for creating, listing, deleting, updating, and toggling the completion status of tasks.
 
-## Development
-
-### Install Dependencies
-```bash
-npm install
-```
-
-### Build the Server
-```bash
-npm run build
-```
-
-## Installation
-
-To use with Claude Desktop, add the server configuration:
-
-On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
-On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "google-tasks": {
-      "command": "/path/to/google-tasks/build/index.js"
-    }
-  }
-}
-```
+---
 
 ## Usage
 
@@ -60,12 +58,64 @@ node build/index.js
 ```
 
 ### Available Commands
-- `list_tasks`: Retrieve all tasks in the default task list.
-- `create_task`: Add a new task with a title and optional notes.
+- **`create_task`**:
+  Create a new task with optional parameters.
+  ```json
+  {
+    "title": "Complete project",
+    "notes": "Finalize module 3",
+    "status": "needsAction"
+  }
+  ```
+- **`list_tasks`**:
+  Retrieve all tasks in the default task list.
+  - No parameters required.
+  - Returns an array of tasks.
+- **`delete_task`**:
+  Delete a task by its ID.
+  ```json
+  {
+    "taskId": "unique-task-id"
+  }
+  ```
+- **`update_task`**:
+  Update a task's title, notes, or other details by its ID.
+  ```json
+  {
+    "taskId": "unique-task-id",
+    "title": "Updated task title",
+    "notes": "Updated task notes"
+  }
+  ```
+- **`complete_task`**:
+  Toggle the completion status of a task.
+  ```json
+  {
+    "taskId": "unique-task-id"
+  }
+  ```
 
-### Example Interactions
-- Use `list_tasks` to get a JSON array of all tasks.
-- Use `create_task` to add a new task to your list.
+### Example Response for `complete_task`
+
+#### Before Completion
+```json
+{
+  "taskId": "unique-task-id",
+  "title": "Finish the report",
+  "status": "needsAction"
+}
+```
+
+#### After Completion
+```json
+{
+  "taskId": "unique-task-id",
+  "title": "Finish the report",
+  "status": "completed"
+}
+```
+
+---
 
 ## Debugging
 

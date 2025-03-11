@@ -4,6 +4,10 @@ A Model Context Protocol (MCP) server for managing Google Tasks.
 
 This TypeScript-based MCP server demonstrates core MCP concepts by integrating with the Google Tasks API. It allows managing tasks in a structured and efficient way.
 
+<a href="https://glama.ai/mcp/servers/dl82dtjqew">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/dl82dtjqew/badge" alt="Google Tasks Server MCP server" />
+</a>
+
 ---
 
 ## Features

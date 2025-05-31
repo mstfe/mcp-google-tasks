@@ -1,0 +1,39 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'node', args: ['build/index.js'], env: { CLIENT_ID: config.clientId, CLIENT_SECRET: config.clientSecret, REDIRECT_URI: config.redirectUri, ACCESS_TOKEN: config.accessToken, REFRESH_TOKEN: config.refreshToken } })
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - clientId
+      - clientSecret
+      - redirectUri
+      - accessToken
+      - refreshToken
+    properties:
+      clientId:
+        type: string
+        description: Google OAuth2 client ID
+      clientSecret:
+        type: string
+        description: Google OAuth2 client secret
+      redirectUri:
+        type: string
+        description: OAuth2 redirect URI
+      accessToken:
+        type: string
+        description: OAuth2 access token
+      refreshToken:
+        type: string
+        description: OAuth2 refresh token
+  exampleConfig:
+    clientId: your-client-id.apps.googleusercontent.com
+    clientSecret: your-client-secret
+    redirectUri: http://localhost:3000/oauth2callback
+    accessToken: ya29.a0AfH6SM...
+    refreshToken: 1//0g9...
